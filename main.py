@@ -84,13 +84,11 @@ fig.canvas.mpl_connect('button_press_event', on_plot_click)
 
 # Set up checkboxes
 rax = plt.axes([0.125, 0.83, 0.15, 0.15])   
-check = CheckButtons(rax, ['Bezier', 'Cubic-Spline', 'Catmull Rom', 'B-Spline'], (False, True, False, False))
+check = CheckButtons(rax, ['Bezier', 'Cubic-Spline', 'Catmull Rom', 'B-Spline'], (True, True, True, True))
 check.on_clicked(on_checkbox_clicked)  # Connect the checkbox event
 
 # Define a color sequence for rectangles
 colors = ['blue', 'black', 'green', 'orange']
-
-# Set face color for each rectangle using the color sequence
 [rect.set_facecolor(colors[i]) for i, rect in enumerate(check.rectangles)]
 
 for rect, label in zip(check.rectangles, check.labels):
