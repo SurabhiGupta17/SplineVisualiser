@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.interpolate import BSpline
+
 import matplotlib.pyplot as plt
 from matplotlib.widgets import CheckButtons
 from bezier import de_casteljau
@@ -45,9 +47,9 @@ def update_plot():
             ax.plot(bezier_spline[0], bezier_spline[1], label="Bézier Curve", color='blue')
 
         # Plot B-spline if 'B-spline' checkbox is checked
-        if check.get_status()[2] and len(control_points) >= 3:  # Assuming you add a third checkbox for B-spline
-            b_spline_points = b_spline(control_points_array, 1000, 2)  # Assuming quadratic B-spline (degree=2)
-            ax.plot(b_spline_points[0], b_spline_points[1], label="B-spline", color='orange')
+        if check.get_status()[2] and len(control_points) >= 3: 
+            b_spline_points = b_spline(control_points_array, 2, 1000)  
+            ax.plot(b_spline_points[:, 0], b_spline_points[:, 1], label="B-spline", color='orange')
 
         # Plot Catmull-Rom spline if 'Catmull Rom' checkbox is checked
         if check.get_status()[1] and len(control_points) >= 4:
@@ -76,7 +78,7 @@ fig.canvas.mpl_connect('button_press_event', on_plot_click)
 
 # Set up checkboxes
 rax = plt.axes([0.125, 0.83, 0.15, 0.15])   
-check = CheckButtons(rax, ['Bezier', 'Catmull Rom', 'B-Spline'], (True, True, True))
+check = CheckButtons(rax, ['Bezier', 'Catmull Rom', 'B-Spline'], (False, False, True))
 check.on_clicked(on_checkbox_clicked)  # Connect the checkbox event
 
 # Define a color sequence for rectangles

@@ -1,24 +1,20 @@
-# b_spline.py
 import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import BSpline
 
-# Function to calculate a point on the B-spline
-def b_spline_point(t, degree, control_points):
-    n = len(control_points) - 1
-    p = np.zeros((n + degree + 1, 2))
+def b_spline(control_points, degree, num_points):
+    # Calculate the number of knots required
+    num_control_points = len(control_points)
+    num_knots = num_control_points + degree + 1
 
-    for i in range(n + 1):
-        p[i] = control_points[i]
+    # Generate a uniform knot vector
+    knots = np.linspace(0, 1, num_knots)
 
-    for r in range(1, degree + 1):
-        for i in range(n, r - 1, -1):
-            alpha = (t - i) / (i + degree - r + 1)  # Fix indexing here
-            p[i + degree] = (1 - alpha) * p[i + degree - 1] + alpha * p[i + degree]
+    # Create a B-spline curve
+    bspline = BSpline(knots, control_points, degree)
 
-    return p[n + degree]
+    # Generate points along the B-spline curve
+    t_values = np.linspace(knots[0], knots[-1], num_points)
+    curve_points = bspline(t_values)
 
-# Function to generate B-spline points
-def b_spline(control_points, num_points, degree):
-    t_vals = np.linspace(degree, len(control_points) - 1, num_points)
-    spline_points = [b_spline_point(t, degree, control_points) for t in t_vals]
-
-    return np.array(spline_points).T
+    return curve_points
