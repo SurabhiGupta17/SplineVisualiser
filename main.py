@@ -9,9 +9,13 @@ pygame_screen_width, pygame_screen_height = 800, 800
 grid_size = 40  # Number of squares in each row and column
 square_size = 600 // 30
 
-# Dimensions for the radio button box
-radio_box_width, radio_box_height = 120, 80
-radio_box_x, radio_box_y = 10, 10
+# Dimensions for the mode box
+mode_box_width, mode_box_height = 120, 80
+mode_box_x, mode_box_y = 10, 10
+
+# Dimensions for the curve button box
+curve_box_width, curve_box_height = 120, 80
+curve_box_x, curve_box_y = 10, 10
 
 # Dimensions for the title box
 title_box_width, title_box_height = 250, 40
@@ -79,15 +83,15 @@ while running:
         # Handle mouse clicks in the Pygame window
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
-            if (radio_box_x <= x <= radio_box_x + radio_box_width and
-                radio_box_y <= y <= radio_box_y + radio_box_height):
+            if (mode_box_x <= x <= mode_box_x + mode_box_width and
+                mode_box_y <= y <= mode_box_y + mode_box_height):
                 # Clicked on the radio button box
-                if (radio_box_x + 10 <= x <= radio_box_x + 30 and
-                    radio_box_y + 10 <= y <= radio_box_y + 30):
+                if (mode_box_x + 10 <= x <= mode_box_x + 30 and
+                    mode_box_y + 10 <= y <= mode_box_y + 30):
                     # Clicked on the "Control Point" radio button
                     current_mode = 'c'
-                elif (radio_box_x + 10 <= x <= radio_box_x + 70 and
-                      radio_box_y + 40 <= y <= radio_box_y + 60):
+                elif (mode_box_x + 10 <= x <= mode_box_x + 70 and
+                      mode_box_y + 40 <= y <= mode_box_y + 60):
                     # Clicked on the "Obstacle" radio button
                     current_mode = 'o'
             elif (grid_area_x <= x <= grid_area_x + grid_area_width and
@@ -117,10 +121,10 @@ while running:
     draw_grid()
 
     # Draw the radio buttons
-    draw_radio_button("Control Point", radio_box_x + 10, radio_box_y + 10, current_mode == 'c')
-    draw_radio_button("Obstacle", radio_box_x + 10, radio_box_y + 40, current_mode == 'o')
-    draw_radio_button("Bezier Curve", radio_box_x + 600, radio_box_y + 10, current_mode == 'c')
-    draw_radio_button("Catmull Rom", radio_box_x + 600, radio_box_y + 40, current_mode == 'o')
+    draw_radio_button("Control Point", mode_box_x + 10, mode_box_y + 10, current_mode == 'c')
+    draw_radio_button("Obstacle", mode_box_x + 10, mode_box_y + 40, current_mode == 'o')
+    draw_radio_button("Bezier Curve", curve_box_x + 600, curve_box_y + 10, current_mode == 'c')
+    draw_radio_button("Catmull Rom", curve_box_x + 600, curve_box_y + 40, current_mode == 'o')
 
     # Draw the user-generated control points
     for point in control_points:
