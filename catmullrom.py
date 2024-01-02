@@ -2,10 +2,10 @@ import numpy as np
 
 # Function to calculate a point on the Catmull-Rom spline
 def catmull_rom_point(t, p0, p1, p2, p3):
-    return 0.5 * ((2 * p1) +
-                  (-p0 + p2) * t +
-                  (2 * p0 - 5 * p1 + 4 * p2 - p3) * t**2 +
-                  (-p0 + 3 * p1 - 3 * p2 + p3) * t**3)
+    return (
+        0.5 * ((2 * p1[0]) + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t**2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t**3),
+        0.5 * ((2 * p1[1]) + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t**2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t**3)
+    )
 
 # Function to generate Catmull-Rom spline points
 def catmull_rom_spline(control_points, num_points):

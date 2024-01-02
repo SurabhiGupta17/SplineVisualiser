@@ -1,6 +1,8 @@
 import pygame
 import sys
 from bezier import bezier_point
+from catmullrom import catmull_rom_spline
+
 
 pygame.init()
 pygame_screen_width, pygame_screen_height = 800, 800
@@ -127,6 +129,16 @@ while running:
         num_points = 100
         bezier_points = [bezier_point(t / num_points, control_points) for t in range(num_points + 1)]
         pygame.draw.lines(pygame_screen, (0, 0, 255), False, bezier_points, 2)
+
+    # Draw the Catmull-Rom spline using user-generated control points
+    if len(control_points) > 3:
+        num_points = 100
+        catmull_rom_points = catmull_rom_spline(control_points, num_points)
+
+    # Flatten the array and convert it to a list of tuples
+        flattened_points = [tuple(catmull_rom_points[:, i]) for i in range(catmull_rom_points.shape[1])]
+        pygame.draw.lines(pygame_screen, (255, 0, 0), False, flattened_points, 2)
+
 
     pygame.display.flip()
 
