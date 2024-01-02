@@ -4,6 +4,7 @@ from scipy.interpolate import BSpline
 import matplotlib.pyplot as plt
 from matplotlib.widgets import CheckButtons
 from bezier import de_casteljau
+from cubic_spline import cubic_spline
 from b_spline import b_spline
 from catmullrom import catmull_rom_spline 
 
@@ -46,15 +47,20 @@ def update_plot():
             bezier_spline = np.array([de_casteljau(t, control_points_array) for t in t_vals]).T
             ax.plot(bezier_spline[0], bezier_spline[1], label="Bézier Curve", color='blue')
 
-        # Plot B-spline if 'B-spline' checkbox is checked
-        if check.get_status()[2] and len(control_points) >= 3: 
-            b_spline_points = b_spline(control_points_array, 2, 1000)  
-            ax.plot(b_spline_points[:, 0], b_spline_points[:, 1], label="B-spline", color='orange')
+        # Plot Cubic Spline curve if 'Cubic-Spline' checkbox is checked
+        if check.get_status()[1]:
+            cubic_spline_points = cubic_spline(control_points_array, 1000)
+            ax.plot(cubic_spline_points[0], cubic_spline_points[1], label="Cubic-Spline", color='black')
 
         # Plot Catmull-Rom spline if 'Catmull Rom' checkbox is checked
-        if check.get_status()[1] and len(control_points) >= 4:
+        if check.get_status()[2] and len(control_points) >= 4:
             catmull_rom_spline_points = catmull_rom_spline(control_points_array, 1000)
             ax.plot(catmull_rom_spline_points[0], catmull_rom_spline_points[1], label="Catmull Rom", color='green')
+
+        # Plot B-spline if 'B-spline' checkbox is checked
+        if check.get_status()[3] and len(control_points) >= 3: 
+            b_spline_points = b_spline(control_points_array, 2, 1000)  
+            ax.plot(b_spline_points[:, 0], b_spline_points[:, 1], label="B-spline", color='orange')
 
     # Plot the control points
     if control_points:
@@ -78,11 +84,11 @@ fig.canvas.mpl_connect('button_press_event', on_plot_click)
 
 # Set up checkboxes
 rax = plt.axes([0.125, 0.83, 0.15, 0.15])   
-check = CheckButtons(rax, ['Bezier', 'Catmull Rom', 'B-Spline'], (False, False, True))
+check = CheckButtons(rax, ['Bezier', 'Cubic-Spline', 'Catmull Rom', 'B-Spline'], (False, True, False, False))
 check.on_clicked(on_checkbox_clicked)  # Connect the checkbox event
 
 # Define a color sequence for rectangles
-colors = ['blue', 'green', 'orange']
+colors = ['blue', 'black', 'green', 'orange']
 
 # Set face color for each rectangle using the color sequence
 [rect.set_facecolor(colors[i]) for i, rect in enumerate(check.rectangles)]
