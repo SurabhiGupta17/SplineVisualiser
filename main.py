@@ -1,103 +1,134 @@
-import numpy as np
-from scipy.interpolate import BSpline
+import pygame
+import sys
+from bezier import bezier_point
 
-import matplotlib.pyplot as plt
-from matplotlib.widgets import CheckButtons
-from bezier import de_casteljau
-from cubic_spline import cubic_spline
-from b_spline import b_spline
-from catmullrom import catmull_rom_spline 
+pygame.init()
+pygame_screen_width, pygame_screen_height = 800, 800
+grid_size = 40  # Number of squares in each row and column
+square_size = 600 // 30
 
-# Initialize an empty list for control points
+# Dimensions for the radio button box
+radio_box_width, radio_box_height = 120, 80
+radio_box_x, radio_box_y = 10, 10
+
+# Dimensions for the title box
+title_box_width, title_box_height = 400, 40
+title_box_x, title_box_y = 150, 10
+
+# Dimensions for the grid area
+grid_area_x, grid_area_y, grid_area_width, grid_area_height = 10, 100, 600, 600
+
+pygame_screen = pygame.display.set_mode((pygame_screen_width, pygame_screen_height))
+pygame.display.set_caption("Interactive Spline Visualizer")
+
 control_points = []
+obstacle_grid = []
 
-# Define fixed axis limits  
-min_x, max_x = -10, 10
-min_y, max_y = -10, 10
+# Current mode: 'c' for control point, 'o' for obstacle
+current_mode = 'c'
 
-# Set up the figure and axes
-fig, ax = plt.subplots()
-plt.subplots_adjust(bottom=0.2)
+# Colors for the radio buttons and grid cells
+radio_button_color_default = (200, 200, 200)
+radio_button_color_selected = (150, 150, 150)
+grid_cell_color_obstacle = (128, 128, 128)
 
-# Function to handle mouse clicks on the plot
-def on_plot_click(event):
-    if event.inaxes:
-        x, y = event.xdata, event.ydata
-        control_points.append([x, y])
-        update_plot()
+# Initialize a 2D array to represent the grid
+grid = [[False for _ in range(grid_size)] for _ in range(grid_size)]
 
-# Function to handle checkbox events
-def on_checkbox_clicked(label):
-    update_plot()
+# Function to draw a round radio button
+def draw_radio_button(label, x, y, selected=True):
+    color = radio_button_color_selected if selected else radio_button_color_default
+    pygame.draw.circle(pygame_screen, color, (x + 20, y + 20), 10)  # Radio button background
+    font = pygame.font.Font(None, 20)
+    text = font.render(label, True, (0, 0, 0))
+    pygame_screen.blit(text, (x + 40, y + 15))
 
-# Function to update the plot
-def update_plot():
-    ax.cla()
+# Function to draw the grid
+def draw_grid():
+    # Draw the grid with borders
+    for i in range(30):
+        for j in range(grid_size-1):
+            x = grid_area_x + j * square_size
+            y = grid_area_y + i * square_size
 
-    # Disconnect the mouse click event to avoid multiple connections
-    fig.canvas.mpl_disconnect(fig.canvas.manager.key_press_handler_id)
+            # Draw cell
+            color = grid_cell_color_obstacle if grid[i][j] else (255, 255, 255)
+            pygame.draw.rect(pygame_screen, color, (x, y, square_size, square_size))
 
-    # Plot the curves
+            # Draw top border
+            pygame.draw.line(pygame_screen, (180, 180, 180), (x, y), (x + square_size, y), 1)
+
+            # Draw left border
+            pygame.draw.line(pygame_screen, (180, 180, 180), (x, y), (x, y + square_size), 1)
+
+            # Draw right border
+            pygame.draw.line(pygame_screen, (180, 180, 180), (x + square_size, y), (x + square_size, y + square_size), 1)
+
+            # Draw bottom border
+            pygame.draw.line(pygame_screen, (180, 180, 180), (x, y + square_size), (x + square_size, y + square_size), 1)
+
+# Pygame main loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # Handle mouse clicks in the Pygame window
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            x, y = event.pos
+            if (radio_box_x <= x <= radio_box_x + radio_box_width and
+                radio_box_y <= y <= radio_box_y + radio_box_height):
+                # Clicked on the radio button box
+                if (radio_box_x + 10 <= x <= radio_box_x + 30 and
+                    radio_box_y + 10 <= y <= radio_box_y + 30):
+                    # Clicked on the "Control Point" radio button
+                    current_mode = 'c'
+                elif (radio_box_x + 10 <= x <= radio_box_x + 70 and
+                      radio_box_y + 40 <= y <= radio_box_y + 60):
+                    # Clicked on the "Obstacle" radio button
+                    current_mode = 'o'
+            elif (grid_area_x <= x <= grid_area_x + grid_area_width and
+                  grid_area_y <= y <= grid_area_y + grid_area_height and
+                  current_mode == 'c'):
+                # Clicked within the grid area in "Control Point" mode
+                # Add control point
+                control_points.append((x, y))
+            elif current_mode == 'o':
+                # Toggle obstacle status for the clicked grid cell
+                x, y = event.pos
+                # Convert pixel coordinates to grid indices
+                grid_x, grid_y = (x - grid_area_x) // square_size, (y - grid_area_y) // square_size
+                # Toggle the square color
+                grid[grid_y][grid_x] = not grid[grid_y][grid_x]
+
+    # Update the Pygame window
+    pygame_screen.fill((255, 255, 255))  # Fill with white background
+
+    # Draw the title box
+    pygame.draw.rect(pygame_screen, (200, 200, 200), (title_box_x, title_box_y, title_box_width, title_box_height))
+    font = pygame.font.Font(None, 30)
+    title_text = font.render("Spline Visualizer", True, (0, 0, 0))
+    pygame_screen.blit(title_text, (title_box_x + 10, title_box_y + 5))
+
+    # Draw the grid
+    draw_grid()
+
+    # Draw the radio buttons
+    draw_radio_button("Control Point", radio_box_x + 10, radio_box_y + 10, current_mode == 'c')
+    draw_radio_button("Obstacle", radio_box_x + 10, radio_box_y + 40, current_mode == 'o')
+
+    # Draw the user-generated control points
+    for point in control_points:
+        pygame.draw.circle(pygame_screen, (0, 0, 0), point, 5)
+
+    # Draw the Bézier curve using user-generated control points
     if len(control_points) > 1:
-        control_points_array = np.array(control_points)
+        num_points = 100
+        bezier_points = [bezier_point(t / num_points, control_points) for t in range(num_points + 1)]
+        pygame.draw.lines(pygame_screen, (0, 0, 255), False, bezier_points, 2)
 
-        # Plot Bézier curve if 'Bezier' checkbox is checked
-        if check.get_status()[0]:
-            t_vals = np.linspace(0, 1, 1000)
-            bezier_spline = np.array([de_casteljau(t, control_points_array) for t in t_vals]).T
-            ax.plot(bezier_spline[0], bezier_spline[1], label="Bézier Curve", color='blue')
+    pygame.display.flip()
 
-        # Plot Cubic Spline curve if 'Cubic-Spline' checkbox is checked
-        if check.get_status()[1]:
-            cubic_spline_points = cubic_spline(control_points_array, 1000)
-            ax.plot(cubic_spline_points[0], cubic_spline_points[1], label="Cubic-Spline", color='black')
-
-        # Plot Catmull-Rom spline if 'Catmull Rom' checkbox is checked
-        if check.get_status()[2] and len(control_points) >= 4:
-            catmull_rom_spline_points = catmull_rom_spline(control_points_array, 1000)
-            ax.plot(catmull_rom_spline_points[0], catmull_rom_spline_points[1], label="Catmull Rom", color='green')
-
-        # Plot B-spline if 'B-spline' checkbox is checked
-        if check.get_status()[3] and len(control_points) >= 3: 
-            b_spline_points = b_spline(control_points_array, 2, 1000)  
-            ax.plot(b_spline_points[:, 0], b_spline_points[:, 1], label="B-spline", color='orange')
-
-    # Plot the control points
-    if control_points:
-        points = np.array(control_points)
-        ax.scatter(points[:, 0], points[:, 1], c='red', marker='o', label="Control Points")
-
-    # Set fixed axis limits
-    ax.set_xlim(min_x, max_x)
-    ax.set_ylim(min_y, max_y)
-
-    # Set labels and legend
-    ax.set_xlabel('X-axis')
-    ax.set_ylabel('Y-axis')
-    ax.legend()
-
-    # Show the plot
-    plt.draw()
-
-# Connect the mouse click event
-fig.canvas.mpl_connect('button_press_event', on_plot_click)
-
-# Set up checkboxes
-rax = plt.axes([0.125, 0.83, 0.15, 0.15])   
-check = CheckButtons(rax, ['Bezier', 'Cubic-Spline', 'Catmull Rom', 'B-Spline'], (True, True, True, True))
-check.on_clicked(on_checkbox_clicked)  # Connect the checkbox event
-
-# Define a color sequence for rectangles
-colors = ['blue', 'black', 'green', 'orange']
-[rect.set_facecolor(colors[i]) for i, rect in enumerate(check.rectangles)]
-
-for rect, label in zip(check.rectangles, check.labels):
-    rect.set_width(0.1)  # Increase the width of the checkbox
-    rect.set_height(0.2)  # Increase the height of the checkbox
-    rect.set_edgecolor('black')  # Set the border color
-    label.set_fontsize(7)  # Set the font size
-
-# Show the initial plot
-update_plot()
-
-plt.show()
+pygame.quit()
+sys.exit()
