@@ -14,8 +14,8 @@ radio_box_width, radio_box_height = 120, 80
 radio_box_x, radio_box_y = 10, 10
 
 # Dimensions for the title box
-title_box_width, title_box_height = 400, 40
-title_box_x, title_box_y = 150, 10
+title_box_width, title_box_height = 250, 40
+title_box_x, title_box_y = 250, 10
 
 # Dimensions for the grid area
 grid_area_x, grid_area_y, grid_area_width, grid_area_height = 10, 100, 600, 600
@@ -119,6 +119,8 @@ while running:
     # Draw the radio buttons
     draw_radio_button("Control Point", radio_box_x + 10, radio_box_y + 10, current_mode == 'c')
     draw_radio_button("Obstacle", radio_box_x + 10, radio_box_y + 40, current_mode == 'o')
+    draw_radio_button("Bezier Curve", radio_box_x + 600, radio_box_y + 10, current_mode == 'c')
+    draw_radio_button("Catmull Rom", radio_box_x + 600, radio_box_y + 40, current_mode == 'o')
 
     # Draw the user-generated control points
     for point in control_points:
