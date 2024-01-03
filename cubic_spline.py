@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
 
 def cubic_spline(control_points, num_points):

@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.interpolate import BSpline
 
 def b_spline(control_points, degree, num_points):
