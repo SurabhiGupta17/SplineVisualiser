@@ -1,5 +1,5 @@
 # SplineVisualiser
-An interactive spline visualiser for robots that helps you check edge cases in path planning with custom obstacles.
+An interactive spline visualiser for robots that lets you add custom obstacles.
 
 ## Demo
 <p align="center">
